@@ -6,7 +6,7 @@ export class ApiGatewayStack extends Stack {
     constructor(scope: Construct, id: string, props?: StackProps, stage?: string) {
         super(scope, id, props);
 
-        const api = new apigw.RestApi(this, "Package", {
+        const api = new apigw.RestApi(this, "Package-Distribution", {
             cloudWatchRole: true,
             deploy: true,
             endpointTypes: [apigw.EndpointType.REGIONAL],
