@@ -52,9 +52,9 @@ jobs:
       - name: Deploy CDK stack
         run: |
           if [[ ${{ github.ref }} == 'refs/heads/main' ]]; then
-            cdk deploy --app 'node bin/cdk-apigateway.js' --require-approval never --context stage=prod
+            cdk deploy --app 'node bin/cdk-apigateway.js' --require-approval never --context stage=prod --all
           elif [[ ${{ github.ref }} == 'refs/heads/dev' ]]; then
-            cdk deploy --app 'node bin/cdk-apigateway.js' --require-approval never --context stage=dev
+            cdk deploy --app 'node bin/cdk-apigateway.js' --require-approval never --context stage=dev --all
           else
             echo "Deployment skipped"
           fi
