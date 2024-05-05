@@ -1,9 +1,8 @@
-import * as cdk from 'aws-cdk-lib';
-import { aws_apigateway as apigw } from 'aws-cdk-lib';
+import { Stack, StackProps } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { ApiGatewayStack } from './stacks/apigateway';
-export class CdkApigatewayStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+export class CdkApigatewayStack extends Stack {
+  constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
     const stage = this.node.tryGetContext("stage");
     const stackName = `apigateway-${stage}`;
