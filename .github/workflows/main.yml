@@ -1,14 +1,20 @@
-name: Deploy Apigateway
+name: Deploy Apigateway to AWS
 
 on:
   push:
-    branches:
-      - main
-      - dev
+    branches: [main, dev]
   pull_request:
-    branches:
-      - main
-      - dev
+    branches: [main, dev]
+
+env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_REGION: ${{ secrets.AWS_REGION }}
+  AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+
+permissions:
+  id-token: write   
+  contents: read
 
 jobs:
   deploy:
@@ -17,32 +23,37 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      
+      - name: Set up environment
+        run: |
+          echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> .env
+          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> .env
+          echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> .env
+          echo "AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }}" >> .env
 
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '20'
+          node-version: 20
 
       - name: Install CDK
         run: npm install -g aws-cdk
 
       - name: Install project dependencies
         run: npm install
+      
+      - name: Build project
+        run: npm run build
 
       - name: Bootstrap CDK
-        run: cdk bootstrap aws://$AWS_ACCOUNT_ID/$AWS_REGION
+        run: cdk bootstrap aws://${{ secrets.AWS_ACCOUNT_ID }}/${{ secrets.AWS_REGION }}
 
       - name: Deploy CDK stack
         run: |
           if [[ ${{ github.ref }} == 'refs/heads/main' ]]; then
-            cdk deploy --app 'node bin/cdk-apigateway.js' --require-approval manual --context stage=prod
+            cdk deploy --app 'node bin/cdk-apigateway.js' --require-approval never --context stage=prod --all
           elif [[ ${{ github.ref }} == 'refs/heads/dev' ]]; then
-            cdk deploy --app 'node bin/cdk-apigateway.js' --require-approval manual --context stage=dev
+            cdk deploy --app 'node bin/cdk-apigateway.js' --require-approval never --context stage=dev --all
           else
             echo "Deployment skipped"
           fi
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
