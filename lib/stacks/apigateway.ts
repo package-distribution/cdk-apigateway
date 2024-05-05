@@ -12,10 +12,6 @@ export class ApiGatewayStack extends cdk.Stack {
             endpointTypes: [apigw.EndpointType.REGIONAL],
             deployOptions: {
                 stageName: stage
-            },
-            defaultCorsPreflightOptions: {
-                allowOrigins: apigw.Cors.ALL_ORIGINS,
-                allowMethods: apigw.Cors.ALL_METHODS
             }
         });
 
