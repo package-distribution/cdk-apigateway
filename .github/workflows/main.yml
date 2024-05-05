@@ -45,6 +45,9 @@ jobs:
       - name: Build project
         run: npm run build
 
+      - name: Run cdk synth 
+        run: cdk synth
+
       - name: Bootstrap CDK
         run: cdk bootstrap aws://${{ secrets.AWS_ACCOUNT_ID }}/${{ secrets.AWS_REGION }}
 
