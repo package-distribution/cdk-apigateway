@@ -1,0 +1,48 @@
+name: Deploy Apigateway
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+      - dev
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '20'
+
+      - name: Install CDK
+        run: npm install -g aws-cdk
+
+      - name: Install project dependencies
+        run: npm install
+
+      - name: Bootstrap CDK
+        run: cdk bootstrap aws://$AWS_ACCOUNT_ID/$AWS_REGION
+
+      - name: Deploy CDK stack
+        run: |
+          if [[ ${{ github.ref }} == 'refs/heads/main' ]]; then
+            cdk deploy --app 'node bin/cdk-apigateway.js' --require-approval manual --context stage=prod
+          elif [[ ${{ github.ref }} == 'refs/heads/dev' ]]; then
+            cdk deploy --app 'node bin/cdk-apigateway.js' --require-approval manual --context stage=dev
+          else
+            echo "Deployment skipped"
+          fi
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
