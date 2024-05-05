@@ -6,6 +6,7 @@ export class CdkApigatewayStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
     const stage = this.node.tryGetContext("stage");
-    new ApiGatewayStack(this, "apigateway", props, stage);
+    const stackName = `apigateway-${stage}`;
+    new ApiGatewayStack(this, stackName, props, stage);
   }
 }
